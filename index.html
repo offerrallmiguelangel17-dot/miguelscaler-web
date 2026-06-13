@@ -798,11 +798,24 @@
           <div class="opt" onclick="pick(this,'commit')">Solo estoy explorando opciones</div>
         </div>
         <div class="err" id="err5">Selecciona una opción.</div>
-        <div class="fnav"><button class="btn btn-ghost" onclick="prev(5)">← Atrás</button><button class="btn" onclick="next(5)">Ver fechas disponibles →</button></div>
+        <div class="fnav"><button class="btn btn-ghost" onclick="prev(5)">← Atrás</button><button class="btn" onclick="next(5)">Continuar →</button></div>
       </div>
 
-      <!-- Step 6: Calendar -->
+      <!-- Step 6: Inversión -->
       <div class="fstep" data-step="6">
+        <label style="display:block;font-weight:600;margin-bottom:12px">¿Cuánto estás dispuesto a invertir para escalar tu negocio?</label>
+        <div class="opts" data-group="inv">
+          <div class="opt" onclick="pick(this,'inv')">Menos de 1.000 €</div>
+          <div class="opt" onclick="pick(this,'inv')">Entre 1.000 € y 2.000 €</div>
+          <div class="opt" onclick="pick(this,'inv')">Entre 3.000 € y 5.000 €</div>
+          <div class="opt" onclick="pick(this,'inv')">Más de 10.000 €</div>
+        </div>
+        <div class="err" id="err6">Selecciona una opción.</div>
+        <div class="fnav"><button class="btn btn-ghost" onclick="prev(6)">← Atrás</button><button class="btn" onclick="next(6)">Ver fechas disponibles →</button></div>
+      </div>
+
+      <!-- Step 7: Calendar -->
+      <div class="fstep" data-step="7">
         <div class="success" style="padding:0 0 16px">
           <div class="ico">✓</div>
           <h3 style="margin-bottom:4px">¡Perfecto, <span id="greetName">crack</span>!</h3>
@@ -818,7 +831,7 @@
 
 <script>
   let step = 1;
-  const total = 6;
+  const total = 7;
   const data = {};
 
   function openForm(e){ if(e) e.preventDefault(); document.getElementById('overlay').classList.add('show'); document.body.style.overflow='hidden'; }
@@ -830,7 +843,7 @@
     document.querySelector('.fstep[data-step="'+n+'"]').classList.add('active');
     document.getElementById('bar').style.width = (n/total*100)+'%';
     step = n;
-    if(n===6){
+    if(n===7){
       const f=document.getElementById('calFrame');
       if(f && f.dataset.set!=='1'){
         const base='https://calendly.com/offerrallmiguelangel17/30min';
@@ -862,7 +875,8 @@
         negocio:data.biz||'',
         facturacion:(data.rev==='Aún no facturo / acabo de empezar')?'Aún no facturo':(data.rev||''),
         objetivo:(data.goal||[]).join(', '),
-        compromiso:norm[data.commit]||data.commit||''
+        compromiso:norm[data.commit]||data.commit||'',
+        inversion:data.inv||''
       };
       fetch('https://hook.eu1.make.com/v21j33eme0q1d99os6ji3wix90nwy6g5',{
         method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)
@@ -882,7 +896,8 @@
     if(n===3 && !data.rev){ showErr('err3'); return; }
     if(n===4 && (!data.goal || !data.goal.length)){ showErr('err4'); return; }
     if(n===5 && !data.commit){ showErr('err5'); return; }
-    if(n===5) sendLead();
+    if(n===6 && !data.inv){ showErr('err6'); return; }
+    if(n===6) sendLead();
     show(n+1);
   }
   function val(id){ return document.getElementById(id).value.trim(); }
