@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Miguel · Scaler — Duplica tu facturación en 90 días</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#050608;
+    --bg-2:#0A0B10;
+    --card:#101218;
+    --line:rgba(255,255,255,.08);
+    --text:#F5F7FA;
+    --muted:#A7B0C0;
+    --gold:#F5C451;
+    --gold-2:#E9B949;
+    --green:#27D17C;
+    --maxw:1120px;
+    --r:16px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:'Inter',system-ui,sans-serif;
+    background:#050608;
+    color:var(--text);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+    position:relative;
+  }
+  /* Atmósfera espacial: profundidad + textura sutil + vignette */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:-2;pointer-events:none;
+    background:
+      radial-gradient(1200px 700px at 75% -8%, rgba(60,72,120,.18), transparent 60%),
+      radial-gradient(900px 600px at 12% 8%, rgba(245,196,81,.06), transparent 55%),
+      radial-gradient(1000px 800px at 50% 120%, rgba(40,50,90,.14), transparent 60%),
+      #050608;
+  }
+  /* Vignette para el look "negro espacial" (las estrellas las pinta el canvas) */
+  body::after{
+    content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+    background:radial-gradient(ellipse 100% 100% at 50% 45%, transparent 52%, rgba(0,0,0,.62) 100%);
+  }
+  /* Canvas de partículas que se mueve solo y reacciona al ratón */
+  #space{position:fixed;inset:0;z-index:-1;pointer-events:none;display:block}
+  h1,h2,h3,.display{font-family:'Sora','Inter',sans-serif;line-height:1.12;letter-spacing:-.02em}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+  section{padding:84px 0}
+  .accent{color:var(--gold)}
+  .green{color:var(--green)}
+  .muted{color:var(--muted)}
+
+  /* ===== Buttons ===== */
+  .btn{
+    display:inline-flex;align-items:center;gap:.5rem;
+    background:linear-gradient(135deg,var(--gold),var(--gold-2));
+    color:#1a1405;font-weight:700;font-size:1.02rem;
+    border:none;border-radius:999px;padding:16px 30px;cursor:pointer;
+    text-decoration:none;transition:transform .15s ease,box-shadow .15s ease;
+    box-shadow:0 10px 30px rgba(245,196,81,.25);
+  }
+  .btn:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(245,196,81,.38)}
+  .btn-lg{padding:19px 38px;font-size:1.12rem}
+  .btn-ghost{background:transparent;color:var(--text);border:1px solid var(--line);box-shadow:none}
+
+  /* ===== Top bar ===== */
+  .topbar{
+    position:sticky;top:0;z-index:50;
+    background:rgba(11,16,32,.82);backdrop-filter:blur(12px);
+    border-bottom:1px solid var(--line);
+  }
+  .topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:66px}
+  .logo{font-family:'Sora';font-weight:800;font-size:1.18rem;letter-spacing:-.02em}
+  .logo span{color:var(--gold)}
+  .nav-links{display:flex;gap:26px;align-items:center}
+  .nav-links a{color:var(--muted);text-decoration:none;font-size:.95rem;font-weight:500}
+  .nav-links a:hover{color:var(--text)}
+  .topbar .btn{padding:11px 22px;font-size:.92rem}
+  @media(max-width:860px){.nav-links a:not(.btn){display:none}}
+
+  /* ===== Hero ===== */
+  .hero{
+    position:relative;padding:120px 0 96px;overflow:hidden;text-align:center;
+    background:radial-gradient(1100px 560px at 50% -14%,rgba(245,196,81,.09),transparent 60%);
+  }
+  /* halo dorado que respira detrás del título */
+  .hero::before{
+    content:"";position:absolute;top:-120px;left:50%;transform:translateX(-50%);
+    width:820px;height:820px;border-radius:50%;z-index:-1;pointer-events:none;
+    background:radial-gradient(circle, rgba(245,196,81,.12), transparent 62%);
+    filter:blur(22px);animation:breathe 7s ease-in-out infinite;
+  }
+  @keyframes breathe{0%,100%{opacity:.6;transform:translateX(-50%) scale(1)}50%{opacity:.95;transform:translateX(-50%) scale(1.08)}}
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    border:1px solid var(--line);background:rgba(255,255,255,.03);
+    color:var(--muted);font-size:.8rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+    padding:7px 15px;border-radius:999px;margin-bottom:30px;
+    opacity:0;animation:heroIn .7s ease forwards .05s;
+  }
+  /* ===== Título editorial serif escalonado ===== */
+  .hero-title{font-family:'Playfair Display',serif;font-weight:500;letter-spacing:0;max-width:1000px;margin:0 auto;padding:0 8px}
+  .hero-title span{display:block;opacity:0;transform:translateY(22px);animation:heroIn .9s cubic-bezier(.2,.7,.2,1) forwards}
+  .hero-title em{font-style:italic}
+  .hero-title .t1{font-size:clamp(1.05rem,2.2vw,1.55rem);color:#cfd5e0;font-weight:500;animation-delay:.10s}
+  .hero-title .t2{font-size:clamp(1.35rem,3vw,2.1rem);color:#e7ebf2;font-weight:500;margin-top:.2em;animation-delay:.26s}
+  .hero-title .t3{
+    font-size:clamp(2.4rem,5.6vw,4.4rem);font-weight:700;line-height:1.1;margin-top:.22em;animation-delay:.44s;
+    white-space:nowrap;padding-bottom:.06em;
+    background:linear-gradient(180deg,#ffffff 28%,#aab2c4 100%);-webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero-title .t3 em{font-style:italic}
+  .hero-title .t3b{
+    font-family:'Playfair Display',serif;font-weight:700;font-size:clamp(2.6rem,6vw,4.8rem);
+    line-height:1.05;margin-top:.02em;animation-delay:.58s;white-space:nowrap;padding-bottom:.08em;
+    background:linear-gradient(180deg,#FCE08A,#E9B949);-webkit-background-clip:text;background-clip:text;
+    color:transparent;-webkit-text-fill-color:transparent;
+    text-shadow:0 0 34px rgba(245,196,81,.25);
+  }
+  /* en pantallas estrechas, permite 2 líneas centradas en vez de recortar */
+  @media(max-width:560px){
+    .hero-title .t3{white-space:normal}
+  }
+  .hero-title .rule{height:1px;width:90px;background:var(--line);margin:30px auto 0;animation:none;opacity:1}
+  .hero-title .t4{font-size:clamp(1rem,2.2vw,1.4rem);font-style:italic;color:var(--muted);font-weight:500;margin-top:16px;animation-delay:.62s}
+  .hero p.sub{font-size:clamp(1.02rem,2.1vw,1.18rem);color:var(--muted);max-width:56ch;margin:30px auto 36px;opacity:0;animation:heroIn .8s ease forwards .72s}
+  .hero-cta{display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:center;opacity:0;animation:heroIn .8s ease forwards .86s}
+  @keyframes heroIn{to{opacity:1;transform:none}}
+  .microproof{margin-top:20px;color:var(--muted);font-size:.92rem;display:flex;gap:18px;flex-wrap:wrap;justify-content:center;opacity:0;animation:heroIn .8s ease forwards 1s}
+  .microproof span{display:flex;align-items:center;gap:7px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block}
+
+  /* ===== Proof bar ===== */
+  .proofbar{background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:34px 0}
+  .proofbar .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;text-align:center}
+  .proofbar .n{font-family:'Sora';font-weight:800;font-size:2rem;color:var(--gold)}
+  .proofbar .l{color:var(--muted);font-size:.9rem}
+  @media(max-width:680px){.proofbar .grid{grid-template-columns:repeat(2,1fr);gap:28px}}
+
+  /* ===== Section heads ===== */
+  .head{max-width:760px;margin-bottom:46px}
+  .head .tag{color:var(--gold);font-weight:700;font-size:.85rem;letter-spacing:.08em;text-transform:uppercase}
+  .head h2{font-size:clamp(1.7rem,3.6vw,2.5rem);font-weight:800;margin-top:12px}
+  .head p{color:var(--muted);font-size:1.08rem;margin-top:14px}
+
+  /* ===== Cards ===== */
+  .cards{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media(max-width:820px){.cards{grid-template-columns:1fr}}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--r);
+    padding:30px 26px;transition:transform .2s ease,border-color .2s ease;
+  }
+  .card:hover{transform:translateY(-4px);border-color:rgba(245,196,81,.35)}
+  .card .ic{font-size:1.6rem;margin-bottom:14px}
+  .card h3{font-size:1.18rem;font-weight:700;margin-bottom:8px}
+  .card p{color:var(--muted);font-size:.97rem}
+
+  /* ===== Who am I ===== */
+  .split{display:grid;grid-template-columns:0.9fr 1.1fr;gap:46px;align-items:center}
+  @media(max-width:820px){.split{grid-template-columns:1fr;gap:30px}}
+  .photo{
+    aspect-ratio:4/5;border-radius:20px;border:1px solid var(--line);
+    background:linear-gradient(160deg,#16243c,#0c1526);
+    display:flex;align-items:center;justify-content:center;color:var(--muted);
+    font-size:.9rem;text-align:center;padding:24px;
+  }
+  .split h2{font-size:clamp(1.7rem,3.6vw,2.4rem);font-weight:800;margin-bottom:18px}
+  .split p{color:var(--muted);font-size:1.06rem;margin-bottom:16px}
+
+  /* ===== What I do grid ===== */
+  .pills{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:8px}
+  @media(max-width:820px){.pills{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:480px){.pills{grid-template-columns:1fr}}
+  .pill{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:18px 20px;font-weight:600;display:flex;align-items:center;gap:12px;
+  }
+  .pill .b{color:var(--gold);font-weight:800}
+
+  /* ===== Methodology ===== */
+  .phases{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;counter-reset:ph}
+  @media(max-width:820px){.phases{grid-template-columns:1fr}}
+  .phase{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:30px 26px;position:relative}
+  .phase .num{
+    font-family:'Sora';font-weight:800;font-size:1.1rem;color:#1a1405;
+    width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,var(--gold),var(--gold-2));margin-bottom:16px;
+  }
+  .phase h3{font-size:1.18rem;margin-bottom:8px}
+  .phase p{color:var(--muted);font-size:.97rem}
+  .seal{display:inline-block;margin-top:30px;border:1px dashed rgba(245,196,81,.5);color:var(--gold);
+    border-radius:999px;padding:9px 18px;font-weight:700;font-size:.9rem}
+
+  /* ===== Results band ===== */
+  .results{background:linear-gradient(135deg,#10203a,#0c1424);border:1px solid var(--line);border-radius:24px;padding:48px 30px}
+  .results .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:22px;text-align:center}
+  .results .n{font-family:'Sora';font-weight:800;font-size:2.6rem;color:var(--gold)}
+  .results .l{color:var(--muted);font-size:.92rem;margin-top:4px}
+  @media(max-width:680px){.results .grid{grid-template-columns:repeat(2,1fr);gap:30px}}
+
+  /* ===== Cases ===== */
+  .case .meta{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .case .ava{width:46px;height:46px;border-radius:12px;background:linear-gradient(135deg,#1c2c47,#0e1726);
+    display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--gold);border:1px solid var(--line)}
+  .case .res{margin-top:16px;padding-top:16px;border-top:1px solid var(--line);font-family:'Sora';font-weight:700;color:var(--green);font-size:1.05rem}
+  .kpi{display:inline-block;background:rgba(39,209,124,.12);color:var(--green);font-weight:700;font-size:.82rem;padding:4px 10px;border-radius:999px;margin-bottom:14px}
+
+  /* ===== Testimonials ===== */
+  .quote{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:28px 26px}
+  .quote p{font-size:1.02rem;margin-bottom:18px}
+  .quote .who{display:flex;align-items:center;gap:12px}
+  .quote .who .ava{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#1c2c47,#0e1726);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--gold)}
+  .quote .who b{display:block;font-size:.95rem}
+  .quote .who span{color:var(--muted);font-size:.85rem}
+  .stars{color:var(--gold);margin-bottom:12px;letter-spacing:2px}
+
+  /* ===== Offer ===== */
+  .offer{background:radial-gradient(800px 400px at 50% -20%,rgba(245,196,81,.12),transparent),var(--bg-2);
+    border:1px solid var(--line);border-radius:26px;padding:56px 30px;text-align:center}
+  .offer h2{font-size:clamp(1.8rem,4vw,2.6rem);font-weight:800;max-width:18ch;margin:0 auto 18px}
+  .offer p{color:var(--muted);font-size:1.1rem;max-width:62ch;margin:0 auto 26px}
+  .guarantee{display:inline-flex;align-items:center;gap:10px;background:rgba(39,209,124,.12);
+    border:1px solid rgba(39,209,124,.4);color:var(--green);font-weight:800;font-family:'Sora';
+    padding:12px 22px;border-radius:999px;margin-bottom:30px;font-size:1.02rem}
+
+  /* ===== Steps ===== */
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media(max-width:820px){.steps{grid-template-columns:1fr}}
+  .step{text-align:center;padding:20px}
+  .step .c{width:54px;height:54px;border-radius:50%;border:2px solid var(--gold);color:var(--gold);
+    font-family:'Sora';font-weight:800;font-size:1.3rem;display:flex;align-items:center;justify-content:center;margin:0 auto 16px}
+  .step h3{font-size:1.1rem;margin-bottom:8px}
+  .step p{color:var(--muted);font-size:.95rem}
+
+  /* ===== FAQ ===== */
+  .faq{max-width:780px;margin:0 auto}
+  .qa{border:1px solid var(--line);border-radius:14px;margin-bottom:12px;overflow:hidden;background:var(--card)}
+  .qa button{width:100%;text-align:left;background:none;border:none;color:var(--text);
+    font-family:'Sora';font-weight:600;font-size:1.05rem;padding:20px 22px;cursor:pointer;
+    display:flex;justify-content:space-between;align-items:center;gap:16px}
+  .qa .a{max-height:0;overflow:hidden;transition:max-height .3s ease;color:var(--muted)}
+  .qa .a p{padding:0 22px 20px}
+  .qa.open .a{max-height:240px}
+  .qa .ch{color:var(--gold);font-size:1.4rem;transition:transform .3s ease;line-height:1}
+  .qa.open .ch{transform:rotate(45deg)}
+
+  /* ===== Final CTA ===== */
+  .final{text-align:center}
+  .final h2{font-size:clamp(1.9rem,4.4vw,2.8rem);font-weight:800;max-width:20ch;margin:0 auto 16px}
+  .final p{color:var(--muted);font-size:1.1rem;max-width:60ch;margin:0 auto 30px}
+
+  /* ===== Footer ===== */
+  footer{border-top:1px solid var(--line);background:var(--bg-2);padding:50px 0 30px}
+  .foot{display:flex;justify-content:space-between;gap:30px;flex-wrap:wrap}
+  .foot a{color:var(--muted);text-decoration:none;font-size:.92rem;display:block;margin-bottom:8px}
+  .foot a:hover{color:var(--text)}
+  .foot h4{font-size:.85rem;text-transform:uppercase;letter-spacing:.08em;color:var(--text);margin-bottom:14px}
+  .copy{margin-top:36px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:.85rem;text-align:center}
+
+  /* ===== Sticky mobile CTA ===== */
+  .sticky-cta{position:fixed;bottom:0;left:0;right:0;z-index:60;padding:12px 16px;
+    background:rgba(11,16,32,.95);backdrop-filter:blur(10px);border-top:1px solid var(--line);display:none}
+  .sticky-cta .btn{width:100%;justify-content:center}
+  @media(max-width:860px){.sticky-cta{display:block}body{padding-bottom:80px}}
+
+  /* ===== Modal / form ===== */
+  .overlay{position:fixed;inset:0;z-index:100;background:rgba(5,8,16,.78);backdrop-filter:blur(6px);
+    display:none;align-items:center;justify-content:center;padding:20px}
+  .overlay.show{display:flex}
+  .modal{background:var(--bg-2);border:1px solid var(--line);border-radius:22px;width:100%;max-width:560px;
+    max-height:92vh;overflow-y:auto;padding:30px 30px 34px;position:relative}
+  .modal .close{position:absolute;top:16px;right:18px;background:none;border:none;color:var(--muted);
+    font-size:1.7rem;cursor:pointer;line-height:1}
+  .modal h3{font-size:1.5rem;font-weight:800;margin-bottom:6px}
+  .modal .lead{color:var(--muted);font-size:.98rem;margin-bottom:22px}
+  .progress{height:6px;background:rgba(255,255,255,.08);border-radius:999px;margin-bottom:24px;overflow:hidden}
+  .progress .bar{height:100%;width:20%;background:linear-gradient(90deg,var(--gold),var(--gold-2));transition:width .3s ease}
+  .fstep{display:none}
+  .fstep.active{display:block;animation:fade .3s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .field{margin-bottom:16px}
+  .field label{display:block;font-weight:600;font-size:.92rem;margin-bottom:7px}
+  .field input,.field select{width:100%;background:var(--card);border:1px solid var(--line);border-radius:11px;
+    color:var(--text);padding:13px 15px;font-size:1rem;font-family:inherit}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--gold)}
+  .opts{display:grid;gap:10px}
+  .opt{border:1px solid var(--line);background:var(--card);border-radius:11px;padding:14px 16px;cursor:pointer;
+    font-weight:500;transition:border-color .15s,background .15s}
+  .opt:hover{border-color:rgba(245,196,81,.5)}
+  .opt.sel{border-color:var(--gold);background:rgba(245,196,81,.08)}
+  .fnav{display:flex;justify-content:space-between;gap:12px;margin-top:24px}
+  .fnav .btn{flex:1;justify-content:center}
+  .err{color:#ff8a8a;font-size:.85rem;margin-top:8px;display:none}
+  .cal-embed{background:var(--card);border:1px dashed rgba(245,196,81,.5);border-radius:14px;padding:30px;text-align:center;color:var(--muted)}
+  .cal-embed b{color:var(--text);display:block;margin-bottom:8px;font-family:'Sora'}
+  .success{text-align:center;padding:14px 0}
+  .success .ico{font-size:3rem;color:var(--green);margin-bottom:12px}
+
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+  .reveal.in{opacity:1;transform:none}
+
+  /* ===== Sección Quién soy (rediseño premium) ===== */
+  #quien{position:relative;background:
+    radial-gradient(1000px 600px at 8% 12%, rgba(245,196,81,.06), transparent 55%),
+    radial-gradient(900px 520px at 96% 92%, rgba(150,35,50,.10), transparent 60%),
+    var(--bg-2) !important;}
+  #quien .split{gap:66px;align-items:center}
+  .about-media{position:relative;width:100%;max-width:430px;margin:0 auto}
+  .about-media::before{content:"";position:absolute;inset:-14% -16%;z-index:0;border-radius:50%;
+    background:radial-gradient(circle at 55% 42%, rgba(245,196,81,.22), rgba(160,40,55,.12) 44%, transparent 72%);
+    filter:blur(28px);}
+  .about-frame{position:absolute;inset:0;transform:translate(20px,20px);border:1px solid rgba(245,196,81,.45);
+    border-radius:22px;z-index:1;pointer-events:none}
+  .about-photo{position:relative;z-index:2;aspect-ratio:4/5;border-radius:20px;overflow:hidden;
+    border:1px solid rgba(255,255,255,.12);box-shadow:0 46px 100px rgba(0,0,0,.62);}
+  .about-photo img{width:100%;height:100%;object-fit:cover;object-position:50% 16%;display:block;
+    filter:contrast(1.04) saturate(1.04) brightness(1.02);}
+  .about-photo::after{content:"";position:absolute;inset:0;pointer-events:none;
+    background:linear-gradient(180deg, rgba(255,255,255,.07), transparent 20%, transparent 60%, rgba(5,6,8,.58));}
+  .about-tag{position:absolute;z-index:3;top:16px;left:16px;display:inline-flex;align-items:center;gap:7px;
+    background:rgba(12,14,20,.7);backdrop-filter:blur(12px);border:1px solid rgba(245,196,81,.32);
+    color:var(--gold);font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    padding:7px 13px;border-radius:999px;box-shadow:0 8px 22px rgba(0,0,0,.4)}
+  .about-stats{position:absolute;z-index:3;left:-16px;bottom:26px;display:flex;align-items:stretch;gap:18px;
+    background:rgba(12,14,20,.74);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.12);
+    border-radius:16px;padding:14px 22px;box-shadow:0 22px 46px rgba(0,0,0,.5)}
+  .about-stats .as{display:flex;flex-direction:column;justify-content:center}
+  .about-stats .n{font-family:'Sora';font-weight:800;font-size:1.6rem;color:var(--gold);line-height:1}
+  .about-stats .l{font-size:.64rem;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-top:6px;line-height:1.25}
+  .about-stats .sep{width:1px;background:rgba(255,255,255,.14)}
+  #quien .eyb{display:inline-flex;align-items:center;gap:11px;color:var(--gold);font-weight:700;
+    font-size:.8rem;letter-spacing:.14em;text-transform:uppercase}
+  #quien .eyb::before{content:"";width:32px;height:1px;background:var(--gold);display:inline-block}
+  #quien h2{font-size:clamp(2.1rem,4.6vw,3rem);margin-top:16px}
+  #quien p{font-size:1.05rem;line-height:1.75}
+  @media(max-width:820px){
+    .about-media{max-width:350px;margin:0 auto 20px}
+    #quien .split{gap:34px}
+  }
+  @media(max-width:420px){ .about-stats{left:50%;transform:translateX(-50%);bottom:16px} }
+
+  /* ===== Muro de vídeos virales (interactivo) ===== */
+  #viralidad{padding-bottom:96px;overflow:hidden}
+  .vwall-title{font-family:'Playfair Display',serif;font-weight:700;line-height:1.12;
+    font-size:clamp(1.9rem,4.6vw,3.4rem);max-width:18ch;margin:14px auto 0;
+    background:linear-gradient(180deg,#fff 30%,#aab2c4 100%);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .vwall-title em{font-style:italic}
+  .vhint{color:#6b7384;font-size:.74rem;letter-spacing:.18em;text-transform:uppercase;margin-top:14px}
+  .vwall{margin-top:32px;display:flex;flex-direction:column;gap:10px;
+    -webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent);mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent)}
+  .vrow{display:flex;gap:10px;width:max-content;will-change:transform}
+  .vrow.r1{animation:scrollL 60s linear infinite}
+  .vrow.r2{animation:scrollR 72s linear infinite}
+  .vrow.r3{animation:scrollL 84s linear infinite}
+  .vwall:hover .vrow{animation-play-state:paused}
+  @keyframes scrollL{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @keyframes scrollR{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+  .vcard{
+    position:relative;flex:0 0 auto;width:172px;aspect-ratio:3/4;border-radius:10px;overflow:hidden;
+    border:1px solid rgba(255,255,255,.07);filter:grayscale(1) contrast(1.03) brightness(.95);
+    transition:filter .4s ease,transform .4s ease,box-shadow .4s ease;cursor:pointer;
+    box-shadow:0 10px 26px rgba(0,0,0,.45);
+  }
+  .vcard:hover{filter:grayscale(0) contrast(1) brightness(1.02);transform:translateY(-8px) scale(1.05);z-index:3;box-shadow:0 24px 50px rgba(0,0,0,.6)}
+  .vcard img{width:100%;height:100%;object-fit:cover;display:block;user-select:none;-webkit-user-drag:none}
+  .vcard::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.10),transparent 35%,rgba(0,0,0,.32))}
+  .vcard.real::after{opacity:0}
+  .vcard .cap{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;
+    padding:14px;z-index:1;font-family:'Sora',sans-serif;font-weight:700;font-size:.82rem;letter-spacing:.02em;
+    color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.7);line-height:1.25;text-transform:uppercase}
+  .vcard .views{position:absolute;left:10px;bottom:10px;z-index:2;display:flex;align-items:center;gap:6px;
+    color:#fff;font-weight:600;font-size:.9rem;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+  .vcard .views svg{width:15px;height:15px;opacity:.95}
+  @media(max-width:560px){.vcard{width:132px}}
+
+  /* ===== DINAMISMO Y PROFUNDIDAD GLOBAL ===== */
+  .reveal{opacity:0;transform:translateY(36px);transition:opacity .75s cubic-bezier(.2,.7,.2,1),transform .75s cubic-bezier(.2,.7,.2,1)}
+  .reveal.in{opacity:1;transform:none}
+  .reveal.r-left{transform:translateX(-48px)}
+  .reveal.r-right{transform:translateX(48px)}
+  .reveal.r-scale{transform:scale(.93)}
+  .reveal.r-left.in,.reveal.r-right.in,.reveal.r-scale.in{transform:none}
+  @media(prefers-reduced-motion:reduce){.reveal{transition:none;opacity:1;transform:none}}
+
+  /* glows ambientales por seccion (quitan la planitud) */
+  #problemas,#quehago,#metodologia,#resultados,#casos,#testimonios,#viralidad,#oferta,#como,#faq{position:relative;isolation:isolate}
+  #problemas::before,#metodologia::before,#casos::before,#oferta::before,#testimonios::before,#faq::before{
+    content:"";position:absolute;z-index:-1;width:640px;height:640px;border-radius:50%;
+    background:radial-gradient(circle, rgba(245,196,81,.07), transparent 65%);filter:blur(12px);pointer-events:none}
+  #problemas::before{top:-140px;right:-180px}
+  #metodologia::before{bottom:-180px;left:-200px;background:radial-gradient(circle, rgba(80,110,200,.10), transparent 65%)}
+  #casos::before{top:-120px;left:-180px}
+  #oferta::before{top:50%;left:50%;transform:translate(-50%,-50%);width:920px;height:620px}
+  #testimonios::before{bottom:-160px;right:-180px;background:radial-gradient(circle, rgba(80,110,200,.08), transparent 65%)}
+  #faq::before{top:-120px;left:50%;transform:translateX(-50%)}
+
+  /* hover dinamico en mas tarjetas */
+  .pill{transition:transform .28s ease,border-color .28s ease,background .28s ease}
+  .pill:hover{transform:translateY(-5px);border-color:rgba(245,196,81,.4);background:rgba(245,196,81,.05)}
+  .phase{transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease}
+  .phase:hover{transform:translateY(-7px);border-color:rgba(245,196,81,.35);box-shadow:0 22px 50px rgba(0,0,0,.4)}
+  .quote{transition:transform .28s ease,border-color .28s ease}
+  .quote:hover{transform:translateY(-6px);border-color:rgba(245,196,81,.3)}
+  .step{transition:transform .28s ease}
+  .step:hover{transform:translateY(-6px)}
+  .qa{transition:border-color .25s ease,transform .25s ease}
+  .qa:hover{border-color:rgba(245,196,81,.28)}
+
+  /* brillo que cruza el boton al pasar el cursor */
+  .btn{position:relative;overflow:hidden;isolation:isolate}
+  .btn::after{content:"";position:absolute;top:0;left:-130%;width:55%;height:100%;z-index:1;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-18deg);transition:left .6s ease;pointer-events:none}
+  .btn:hover::after{left:150%}
+
+  /* numeros de seccion con halo */
+  .head h2{position:relative}
+
+  /* ===== Carrusel de video-testimonios ===== */
+  #vtestim{position:relative}
+  .vt-wrap{position:relative;max-width:1180px;margin:36px auto 0;padding:0 60px}
+  .vt-track{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;
+    padding:10px 4px 24px;scrollbar-width:none;-ms-overflow-style:none}
+  .vt-track::-webkit-scrollbar{display:none}
+  .vt-card{flex:0 0 auto;scroll-snap-align:center;border-radius:18px;overflow:hidden;
+    border:1px solid var(--line);background:var(--card);box-shadow:0 22px 50px rgba(0,0,0,.45);
+    transition:transform .3s ease,border-color .3s ease}
+  .vt-card:hover{transform:translateY(-6px);border-color:rgba(245,196,81,.3)}
+  .vt-media{position:relative;height:460px;display:flex;align-items:center;justify-content:center;overflow:hidden;
+    background:radial-gradient(circle at 50% 35%,#16203a,#0a0d14 72%)}
+  .vt-media.ph{width:258px}
+  .vt-media video{height:100%;width:auto;max-width:80vw;display:block}
+  .vt-ph{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    gap:14px;color:var(--muted);text-align:center;padding:20px}
+  .vt-play{width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,var(--gold),var(--gold-2));
+    display:flex;align-items:center;justify-content:center;box-shadow:0 12px 30px rgba(245,196,81,.35)}
+  .vt-play svg{width:24px;height:24px;margin-left:3px;fill:#1a1405}
+  .vt-ph .t{font-weight:700;color:#fff;font-family:'Sora'}
+  .vt-ph .s{font-size:.78rem;max-width:80%}
+  .vt-meta{padding:15px 17px}
+  .vt-meta .stars{color:var(--gold);font-size:.8rem;letter-spacing:2px;margin-bottom:5px}
+  .vt-meta b{display:block;font-size:.98rem}
+  .vt-meta span{color:var(--muted);font-size:.84rem}
+  .vt-arrow{position:absolute;top:46%;transform:translateY(-50%);z-index:4;width:46px;height:46px;border-radius:50%;
+    background:rgba(13,15,21,.85);border:1px solid rgba(245,196,81,.3);color:var(--gold);font-size:1.5rem;line-height:1;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;backdrop-filter:blur(8px);
+    transition:background .2s,transform .2s;box-shadow:0 10px 26px rgba(0,0,0,.5)}
+  .vt-arrow:hover{background:rgba(245,196,81,.18);transform:translateY(-50%) scale(1.08)}
+  .vt-arrow.prev{left:6px}
+  .vt-arrow.next{right:6px}
+  @media(max-width:560px){.vt-wrap{padding:0 14px}.vt-arrow{display:none}.vt-media{height:360px}.vt-media.ph{width:208px}}
+
+  /* ===== Proceso 90 días (timeline) ===== */
+  #proceso .head{margin-left:auto;margin-right:auto;text-align:center}
+  .timeline{display:grid;grid-template-columns:repeat(3,1fr);gap:26px;position:relative;margin-top:26px}
+  .timeline::before{content:"";position:absolute;top:34px;left:12%;right:12%;height:2px;
+    background:linear-gradient(90deg,transparent,rgba(245,196,81,.55),transparent)}
+  .tl{position:relative;text-align:center;padding:0 12px}
+  .tl .dot{width:70px;height:70px;border-radius:50%;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;
+    background:var(--bg-2);border:2px solid var(--gold);color:var(--gold);font-family:'Sora';font-weight:800;font-size:.92rem;
+    position:relative;z-index:1;box-shadow:0 0 0 7px var(--bg),0 14px 30px rgba(0,0,0,.4)}
+  .tl h3{font-size:1.18rem;margin-bottom:8px}
+  .tl p{color:var(--muted);font-size:.97rem;line-height:1.6}
+  @media(max-width:760px){
+    .timeline{grid-template-columns:1fr;gap:32px}
+    .timeline::before{left:50%;top:6%;bottom:6%;right:auto;width:2px;height:auto;
+      background:linear-gradient(180deg,transparent,rgba(245,196,81,.55),transparent)}
+  }
+  .tl-note{margin:36px auto 0;max-width:780px;text-align:center;color:var(--text);
+    background:rgba(245,196,81,.06);border:1px solid rgba(245,196,81,.26);border-radius:14px;
+    padding:16px 24px;font-weight:500;line-height:1.6}
+
+  /* ===== ¿Es para ti? (filtro) ===== */
+  #parati .head{margin-left:auto;margin-right:auto;text-align:center}
+  .fit-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-top:8px}
+  @media(max-width:760px){.fit-grid{grid-template-columns:1fr}}
+  .fit-col{border-radius:18px;padding:32px 30px;border:1px solid var(--line);background:var(--card);
+    transition:transform .3s ease,border-color .3s ease}
+  .fit-col:hover{transform:translateY(-5px)}
+  .fit-col.yes{border-color:rgba(39,209,124,.32);background:linear-gradient(180deg,rgba(39,209,124,.07),transparent 60%)}
+  .fit-col.no{border-color:rgba(255,95,95,.28);background:linear-gradient(180deg,rgba(255,95,95,.06),transparent 60%)}
+  .fit-col h3{display:flex;align-items:center;gap:12px;font-size:1.3rem;margin-bottom:22px;font-family:'Sora';font-weight:800}
+  .fit-col.yes h3{color:var(--green)}
+  .fit-col.no h3{color:#ff7a7a}
+  .fit-col ul{list-style:none;display:flex;flex-direction:column;gap:15px}
+  .fit-col li{display:flex;gap:13px;align-items:flex-start;color:#cbd2de;font-size:1.02rem;line-height:1.5}
+  .fit-col li .ic{flex:0 0 auto;width:23px;height:23px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:.78rem;font-weight:800;margin-top:2px}
+  .fit-col.yes li .ic{background:rgba(39,209,124,.16);color:var(--green)}
+  .fit-col.no li .ic{background:rgba(255,95,95,.14);color:#ff7a7a}
+</style>
+</head>
+<body>
+<canvas id="space"></canvas>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="wrap">
+    <div class="logo">Miguel<span>·</span>Scaler</div>
+    <nav class="nav-links">
+      <a href="#parati">¿Es para ti?</a>
+      <a href="#vtestim">Testimonios</a>
+      <a href="#faq">FAQ</a>
+      <a href="#" class="btn" onclick="openForm(event)">Reserva tu Reunión</a>
+    </nav>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap">
+    <span class="eyebrow"><span class="dot"></span> Escalado de negocios con redes sociales</span>
+    <h1 class="hero-title">
+      <span class="t1">El método que usan los negocios para</span>
+      <span class="t2">escalar con redes sociales y</span>
+      <span class="t3">Duplica tu <em>Facturación</em></span>
+      <span class="t3b">en 90 días</span>
+      <span class="rule"></span>
+      <span class="t4">(o no pagas)</span>
+    </h1>
+    <p class="sub">Hago que negocios y personas dupliquen la facturación de su negocio con una sola herramienta: las redes sociales. Sin venderte humo — si no te doy resultados, te devuelvo todo tu dinero.</p>
+    <div class="hero-cta">
+      <a href="#" class="btn btn-lg" onclick="openForm(event)">Reserva tu Reunión de Admisión →</a>
+      <a href="#casos" class="btn btn-ghost btn-lg">Ver resultados reales</a>
+    </div>
+    <div class="microproof">
+      <span><span class="dot"></span> Plazas limitadas</span>
+      <span><span class="dot"></span> Diagnóstico gratuito</span>
+      <span><span class="dot"></span> Garantía de resultados</span>
+    </div>
+  </div>
+</section>
+
+<!-- WHO / MI HISTORIA -->
+<section id="quien" style="background:var(--bg-2)">
+  <div class="wrap split">
+    <div class="about-media reveal">
+      <div class="about-frame"></div>
+      <div class="about-tag">★ Fundador</div>
+      <div class="about-photo"><img src="VISUALIZACIONES/foto-mia.jpg" alt="Miguel · Scaler"></div>
+      <div class="about-stats">
+        <div class="as"><span class="n">+30</span><span class="l">Negocios<br>escalados</span></div>
+        <div class="sep"></div>
+        <div class="as"><span class="n">18</span><span class="l">Años<br>desde casa</span></div>
+      </div>
+    </div>
+    <div class="reveal">
+      <span class="eyb">Quién soy</span>
+      <h2 style="margin-top:12px">Miguel<span style="color:var(--gold)">Scaler</span></h2>
+      <p>No me dedico a llevar redes sociales. Me dedico a una sola cosa: <strong style="color:var(--text)">hacer que tu negocio escale de verdad</strong>, convirtiendo las redes en el motor de crecimiento de todo tu negocio.</p>
+      <p>Soy Miguel, un joven emprendedor de <strong style="color:var(--text)">18 años</strong> que empezó desde casa y ha conseguido cosas que muchos creían imposibles. Hoy, <strong style="color:var(--text)">más de 30 negocios</strong> han confiado en mis capacidades y mis consejos — y gracias a lo que les enseño y construyo con ellos, han crecido.</p>
+      <p>Porque esto no va de hacer vídeos para redes sociales. Va de <strong style="color:var(--text)">cambiarte la vida y hacer crecer tu negocio</strong> de verdad.</p>
+      <a href="#" class="btn" onclick="openForm(event)" style="margin-top:10px">Reserva tu Reunión de Admisión →</a>
+    </div>
+  </div>
+</section>
+
+<!-- MURO DE VIDEOS VIRALES -->
+<section id="viralidad">
+  <div class="wrap" style="text-align:center">
+    <span style="color:var(--gold);font-weight:700;font-size:.85rem;letter-spacing:.08em;text-transform:uppercase">Resultados reales</span>
+    <h2 class="vwall-title reveal">Más de 10 millones de <em>visitas</em> generadas con la metodología</h2>
+    <div class="vhint">Pasa el cursor para pausar</div>
+  </div>
+  <div class="vwall">
+    <div class="vrow r1" id="vrow1"></div>
+    <div class="vrow r2" id="vrow2"></div>
+    <div class="vrow r3" id="vrow3"></div>
+  </div>
+</section>
+
+<!-- VIDEO TESTIMONIOS -->
+<section id="vtestim">
+  <div class="wrap" style="text-align:center">
+    <span style="color:var(--gold);font-weight:700;font-size:.85rem;letter-spacing:.08em;text-transform:uppercase">Testimonios en vídeo</span>
+    <h2 class="reveal" style="font-size:clamp(1.7rem,3.6vw,2.5rem);font-weight:800;margin-top:12px">Lo que dicen mis clientes</h2>
+    <p class="muted reveal" style="margin-top:12px">Resultados reales, contados por ellos mismos.</p>
+  </div>
+  <div class="vt-wrap reveal">
+    <button class="vt-arrow prev" aria-label="Anterior">&#8249;</button>
+    <div class="vt-track" id="vtTrack"></div>
+    <button class="vt-arrow next" aria-label="Siguiente">&#8250;</button>
+  </div>
+</section>
+
+<!-- PROCESO 90 DIAS -->
+<section id="proceso">
+  <div class="wrap">
+    <div class="head reveal">
+      <span class="tag">El proceso</span>
+      <h2>Cómo escalamos tu negocio en 90 días</h2>
+      <p>Un camino claro, paso a paso. Sin improvisar y sin promesas vacías.</p>
+    </div>
+    <div class="timeline">
+      <div class="tl reveal"><div class="dot">MES 1</div><h3>Estrategia + despegue</h3><p>Definimos tu objetivo y la hoja de ruta, montamos tu embudo y tu landing de captación, y arrancamos con un alto volumen de contenido para que el algoritmo te detecte y ganes alcance rápido.</p></div>
+      <div class="tl reveal"><div class="dot">MES 2</div><h3>Optimización</h3><p>Analizamos qué está funcionando y qué clientes están entrando, ajustamos el enfoque y regulamos el ritmo del contenido para asentar tu posicionamiento con el algoritmo.</p></div>
+      <div class="tl reveal"><div class="dot">MES 3</div><h3>Conversión y escalado</h3><p>Pasamos a un ritmo sostenible y controlado, afinamos el embudo y nos centramos en convertir el alcance en clientes y escalar lo que ya funciona.</p></div>
+    </div>
+    <div class="tl-note reveal">★ Reuniones cada semana, nuevos enfoques constantes y seguimiento total — todo enfocado en hacer crecer tu negocio en 90 días.</div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="resultados">
+  <div class="wrap">
+    <div class="head reveal">
+      <span class="tag">Resultados obtenidos</span>
+      <h2>Los números hablan por mí.</h2>
+    </div>
+    <div class="results reveal">
+      <div class="grid">
+        <div><div class="n" data-to="30" data-prefix="+">+30</div><div class="l">Negocios escalados</div></div>
+        <div><div class="n" data-to="10" data-prefix="+" data-suffix="M">+10M</div><div class="l">Visitas generadas</div></div>
+        <div><div class="n" data-to="90">90</div><div class="l">Días para escalar</div></div>
+        <div><div class="n" data-to="2" data-prefix="x">x2</div><div class="l">Facturación garantizada</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ES PARA TI -->
+<section id="parati">
+  <div class="wrap">
+    <div class="head reveal">
+      <span class="tag">¿Encajamos?</span>
+      <h2>Esta metodología no es para todo el mundo.</h2>
+      <p>Trabajo con un número limitado de negocios. Mira si eres uno de ellos.</p>
+    </div>
+    <div class="fit-grid">
+      <div class="fit-col yes reveal"><h3><span>✓</span> Es para ti si...</h3><ul><li><span class="ic">✓</span> Tienes un negocio o marca con un buen producto o servicio detrás.</li><li><span class="ic">✓</span> Quieres escalar tu facturación de verdad, no solo acumular likes.</li><li><span class="ic">✓</span> Estás dispuesto a invertir en crecer durante los próximos 90 días.</li><li><span class="ic">✓</span> Estás comprometido y dispuesto a grabar contenido de forma constante.</li><li><span class="ic">✓</span> Quieres un sistema y resultados medibles, no parches temporales.</li></ul></div>
+      <div class="fit-col no reveal"><h3><span>✕</span> No es para ti si...</h3><ul><li><span class="ic">✕</span> Buscas resultados mágicos de la noche a la mañana.</li><li><span class="ic">✕</span> No estás dispuesto a invertir tiempo ni dinero en tu crecimiento.</li><li><span class="ic">✕</span> Solo quieres que “te lleven las redes” y publicar por publicar.</li><li><span class="ic">✕</span> No estás dispuesto a comprometerte con el proceso ni a grabar contenido.</li><li><span class="ic">✕</span> Pones más excusas que ganas de hacer crecer tu negocio.</li></ul></div>
+    </div>
+  </div>
+</section>
+
+<!-- OFFER -->
+<section id="oferta">
+  <div class="wrap">
+    <div class="offer reveal">
+      <div class="guarantee">✓ Resultados en 90 días o no pagas</div>
+      <h2>Escalamos tu negocio en 90 días. El riesgo es mío.</h2>
+      <p>En 90 días montamos tu estrategia, tu sistema de contenido y tu camino de conversión. No te entrego publicaciones sueltas: te entrego una máquina de adquisición de clientes. Y lo respaldo: si no conseguimos el objetivo que acordemos, no pagas.</p>
+      <a href="#" class="btn btn-lg" onclick="openForm(event)">Reserva tu Reunión de Admisión →</a>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="como" style="background:var(--bg-2)">
+  <div class="wrap">
+    <div class="head reveal" style="margin:0 auto 46px;text-align:center">
+      <span class="tag">Cómo funciona</span>
+      <h2>Reservar tu Reunión de Admisión es muy simple.</h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal"><div class="c">1</div><h3>Solicitas tu plaza</h3><p>Respondes unas preguntas rápidas para que entienda tu negocio antes de hablar.</p></div>
+      <div class="step reveal"><div class="c">2</div><h3>Reunión de admisión</h3><p>Analizamos tu situación y te digo con claridad si puedo duplicar tus números. Gratis y sin compromiso.</p></div>
+      <div class="step reveal"><div class="c">3</div><h3>Plan de escalado</h3><p>Si encajamos, empezamos los 90 días con tu sistema a medida.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="wrap">
+    <div class="head reveal" style="margin:0 auto 40px;text-align:center">
+      <span class="tag">Preguntas frecuentes</span>
+      <h2>Lo que probablemente te estés preguntando.</h2>
+    </div>
+    <div class="faq">
+      <div class="qa reveal"><button onclick="toggleFaq(this)">¿Esto funciona en mi sector? <span class="ch">+</span></button><div class="a"><p>La metodología no depende del sector, sino de entender a quién le vendes y construir el camino a la venta. Funciona en cualquier negocio con un buen producto detrás.</p></div></div>
+      <div class="qa reveal"><button onclick="toggleFaq(this)">Ya probé con alguien de redes y no funcionó. <span class="ch">+</span></button><div class="a"><p>Normal: contrataste a alguien para publicar, no para escalar. Es un trabajo distinto, con otro objetivo y otra forma de medir el éxito.</p></div></div>
+      <div class="qa reveal"><button onclick="toggleFaq(this)">No tengo apenas seguidores / no tengo redes. <span class="ch">+</span></button><div class="a"><p>No hace falta. El sistema construye la presencia desde la estrategia, no desde el número de seguidores.</p></div></div>
+      <div class="qa reveal"><button onclick="toggleFaq(this)">¿Cuánto cuesta? <span class="ch">+</span></button><div class="a"><p>Es una inversión a medida según tu objetivo. Lo vemos en la reunión de admisión, donde sabré si puedo ayudarte. Y recuerda: si no consigo resultados, no pagas.</p></div></div>
+      <div class="qa reveal"><button onclick="toggleFaq(this)">No tengo tiempo para esto. <span class="ch">+</span></button><div class="a"><p>Justo por eso existe el sistema: trabaja por ti. No necesitas vivir pegado al móvil todo el día.</p></div></div>
+      <div class="qa reveal"><button onclick="toggleFaq(this)">¿Qué pasa en la reunión de admisión? <span class="ch">+</span></button><div class="a"><p>Analizamos tu negocio a fondo y te explico la metodología en detalle: cómo funciona y cómo la aplicaríamos a tu caso para duplicar tus números. Detectamos dónde estás perdiendo clientes y te digo con claridad si puedo ayudarte. Sin venta agresiva, sin compromiso.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final" style="background:var(--bg-2)">
+  <div class="wrap final">
+    <div class="reveal">
+      <h2>Tu competencia ya está escalando. ¿Y tú?</h2>
+      <p>Reserva tu Reunión de Admisión gratuita. Plazas limitadas: solo trabajo con unos pocos negocios a la vez para garantizar resultados.</p>
+      <a href="#" class="btn btn-lg" onclick="openForm(event)">Reserva tu Reunión de Admisión →</a>
+      <div class="microproof" style="justify-content:center;margin-top:18px">
+        <span><span class="dot"></span> Diagnóstico gratuito</span>
+        <span><span class="dot"></span> Sin compromiso</span>
+        <span><span class="dot"></span> Resultados o no pagas</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="wrap">
+    <div class="foot">
+      <div style="max-width:280px">
+        <div class="logo" style="margin-bottom:10px">Miguel<span>·</span>Scaler</div>
+        <p class="muted" style="font-size:.92rem">Escalamos negocios usando las redes sociales como motor de crecimiento.</p>
+      </div>
+      <div>
+        <h4>Navegación</h4>
+        <a href="#problemas">Problemas que resuelvo</a>
+        <a href="#parati">¿Es para ti?</a>
+        <a href="#casos">Casos de éxito</a>
+        <a href="#faq">Preguntas frecuentes</a>
+      </div>
+      <div>
+        <h4>Contacto</h4>
+        <a href="#" onclick="openForm(event)">Reserva tu reunión</a>
+        <a href="mailto:[tu-email]">[tu-email]</a>
+        <a href="#">Instagram</a>
+        <a href="#">TikTok</a>
+      </div>
+      <div>
+        <h4>Legal</h4>
+        <a href="#">Aviso legal</a>
+        <a href="#">Política de privacidad</a>
+        <a href="#">Política de cookies</a>
+      </div>
+    </div>
+    <div class="copy">© 2026 Miguel · Scaler. Todos los derechos reservados.</div>
+  </div>
+</footer>
+
+<!-- STICKY MOBILE CTA -->
+<div class="sticky-cta">
+  <a href="#" class="btn" onclick="openForm(event)">Reserva tu Reunión de Admisión →</a>
+</div>
+
+<!-- ===== MODAL: QUALIFICATION FORM ===== -->
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <button class="close" onclick="closeForm()">×</button>
+    <div id="formArea">
+      <h3>Solicita tu Reunión de Admisión</h3>
+      <p class="lead">Responde unas preguntas rápidas. Si encajas, podrás elegir fecha y hora al instante.</p>
+      <div class="progress"><div class="bar" id="bar"></div></div>
+
+      <!-- Step 1 -->
+      <div class="fstep active" data-step="1">
+        <div class="field"><label>Tu nombre</label><input type="text" id="f_name" placeholder="Nombre y apellidos"></div>
+        <div class="field"><label>Email</label><input type="email" id="f_email" placeholder="tucorreo@email.com"></div>
+        <div class="field"><label>WhatsApp</label><input type="tel" id="f_phone" placeholder="+34 600 000 000"></div>
+        <div class="err" id="err1">Por favor completa todos los campos con un email válido.</div>
+        <div class="fnav"><button class="btn" style="flex:1;justify-content:center" onclick="next(1)">Continuar →</button></div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="fstep" data-step="2">
+        <div class="field"><label>¿Qué tipo de negocio tienes?</label><input type="text" id="f_biz" placeholder="Ej. clínica dental, ecommerce, restaurante, infoproducto…"></div>
+        <div class="err" id="err2">Cuéntame brevemente tu tipo de negocio.</div>
+        <div class="fnav"><button class="btn btn-ghost" onclick="prev(2)">← Atrás</button><button class="btn" onclick="next(2)">Continuar →</button></div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="fstep" data-step="3">
+        <label style="display:block;font-weight:600;margin-bottom:12px">¿Cuál es tu facturación mensual aproximada?</label>
+        <div class="opts" data-group="rev">
+          <div class="opt" onclick="pick(this,'rev')">Menos de 3.000 €/mes</div>
+          <div class="opt" onclick="pick(this,'rev')">3.000 – 10.000 €/mes</div>
+          <div class="opt" onclick="pick(this,'rev')">10.000 – 30.000 €/mes</div>
+          <div class="opt" onclick="pick(this,'rev')">Más de 30.000 €/mes</div>
+          <div class="opt" onclick="pick(this,'rev')">Aún no facturo / acabo de empezar</div>
+        </div>
+        <div class="err" id="err3">Selecciona una opción.</div>
+        <div class="fnav"><button class="btn btn-ghost" onclick="prev(3)">← Atrás</button><button class="btn" onclick="next(3)">Continuar →</button></div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="fstep" data-step="4">
+        <label style="display:block;font-weight:600;margin-bottom:12px">¿Cuál es tu objetivo principal? <span style="color:var(--muted);font-weight:400">(puedes marcar varias)</span></label>
+        <div class="opts" data-group="goal">
+          <div class="opt" onclick="pickMulti(this,'goal')">Conseguir más clientes</div>
+          <div class="opt" onclick="pickMulti(this,'goal')">Vender más productos/servicios</div>
+          <div class="opt" onclick="pickMulti(this,'goal')">Captar más leads</div>
+          <div class="opt" onclick="pickMulti(this,'goal')">Más autoridad y marca</div>
+          <div class="opt" onclick="pickMulti(this,'goal')">Aumentar mi facturación general</div>
+        </div>
+        <div class="err" id="err4">Selecciona una opción.</div>
+        <div class="fnav"><button class="btn btn-ghost" onclick="prev(4)">← Atrás</button><button class="btn" onclick="next(4)">Continuar →</button></div>
+      </div>
+
+      <!-- Step 5 -->
+      <div class="fstep" data-step="5">
+        <label style="display:block;font-weight:600;margin-bottom:12px">¿Estás listo para invertir en escalar tu negocio en los próximos 90 días?</label>
+        <div class="opts" data-group="commit">
+          <div class="opt" onclick="pick(this,'commit')">Sí, quiero empezar cuanto antes</div>
+          <div class="opt" onclick="pick(this,'commit')">Sí, si veo que encaja en la reunión</div>
+          <div class="opt" onclick="pick(this,'commit')">Solo estoy explorando opciones</div>
+        </div>
+        <div class="err" id="err5">Selecciona una opción.</div>
+        <div class="fnav"><button class="btn btn-ghost" onclick="prev(5)">← Atrás</button><button class="btn" onclick="next(5)">Ver fechas disponibles →</button></div>
+      </div>
+
+      <!-- Step 6: Calendar -->
+      <div class="fstep" data-step="6">
+        <div class="success" style="padding:0 0 16px">
+          <div class="ico">✓</div>
+          <h3 style="margin-bottom:4px">¡Perfecto, <span id="greetName">crack</span>!</h3>
+          <p class="lead" style="margin-bottom:18px">Elige el día y la hora para tu Reunión de Admisión gratuita.</p>
+        </div>
+        <iframe id="calFrame" title="Reserva tu Reunión de Admisión"
+          style="width:100%;height:640px;border:1px solid var(--line);border-radius:14px;background:#fff" loading="lazy"></iframe>
+        <p class="muted" style="font-size:.85rem;margin-top:14px;text-align:center">¿No ves el calendario? <a href="https://calendly.com/offerrallmiguelangel17/30min" target="_blank" rel="noopener" style="color:var(--gold);font-weight:600">Ábrelo aquí</a>. Recibirás la confirmación por email.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  let step = 1;
+  const total = 6;
+  const data = {};
+
+  function openForm(e){ if(e) e.preventDefault(); document.getElementById('overlay').classList.add('show'); document.body.style.overflow='hidden'; }
+  function closeForm(){ document.getElementById('overlay').classList.remove('show'); document.body.style.overflow=''; }
+  document.getElementById('overlay').addEventListener('click',function(e){ if(e.target===this) closeForm(); });
+
+  function show(n){
+    document.querySelectorAll('.fstep').forEach(s=>s.classList.remove('active'));
+    document.querySelector('.fstep[data-step="'+n+'"]').classList.add('active');
+    document.getElementById('bar').style.width = (n/total*100)+'%';
+    step = n;
+    if(n===6){
+      const f=document.getElementById('calFrame');
+      if(f && f.dataset.set!=='1'){
+        const base='https://calendly.com/offerrallmiguelangel17/30min';
+        f.src = base+'?hide_gdpr_banner=1&embed_type=Inline&name='+encodeURIComponent(data.name||'')+'&email='+encodeURIComponent(data.email||'');
+        f.dataset.set='1';
+      }
+    }
+  }
+  function prev(n){ show(n-1); }
+
+  function pick(el,group){
+    el.parentElement.querySelectorAll('.opt').forEach(o=>o.classList.remove('sel'));
+    el.classList.add('sel');
+    data[group]=el.textContent.trim();
+  }
+  function pickMulti(el,group){
+    el.classList.toggle('sel');
+    data[group]=[...el.parentElement.querySelectorAll('.opt.sel')].map(o=>o.textContent.trim());
+  }
+  function sendLead(){
+    try{
+      const norm={
+        'Sí, quiero empezar cuanto antes':'Quiero empezar cuanto antes',
+        'Sí, si veo que encaja en la reunión':'Si veo que encaja',
+        'Solo estoy explorando opciones':'Solo estoy explorando'
+      };
+      const payload={
+        nombre:data.name||'', email:data.email||'', whatsapp:data.phone||'',
+        negocio:data.biz||'',
+        facturacion:(data.rev==='Aún no facturo / acabo de empezar')?'Aún no facturo':(data.rev||''),
+        objetivo:(data.goal||[]).join(', '),
+        compromiso:norm[data.commit]||data.commit||''
+      };
+      fetch('https://hook.eu1.make.com/v21j33eme0q1d99os6ji3wix90nwy6g5',{
+        method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)
+      }).catch(function(){});
+    }catch(e){}
+  }
+  function showErr(id){ const e=document.getElementById(id); e.style.display='block'; setTimeout(()=>e.style.display='none',3000); }
+
+  function next(n){
+    if(n===1){
+      const name=val('f_name'), email=val('f_email'), phone=val('f_phone');
+      if(!name||!phone||!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ showErr('err1'); return; }
+      data.name=name; data.email=email; data.phone=phone;
+      document.getElementById('greetName').textContent = name.split(' ')[0];
+    }
+    if(n===2){ const b=val('f_biz'); if(!b){ showErr('err2'); return; } data.biz=b; }
+    if(n===3 && !data.rev){ showErr('err3'); return; }
+    if(n===4 && (!data.goal || !data.goal.length)){ showErr('err4'); return; }
+    if(n===5 && !data.commit){ showErr('err5'); return; }
+    if(n===5) sendLead();
+    show(n+1);
+  }
+  function val(id){ return document.getElementById(id).value.trim(); }
+
+  // FAQ
+  function toggleFaq(btn){ btn.parentElement.classList.toggle('open'); }
+
+  // Scroll reveal con escalonado y entrada direccional
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(en=>{ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target);} });
+  },{threshold:.10, rootMargin:'0px 0px -40px 0px'});
+  // entrada lateral en los bloques a dos columnas (.split)
+  document.querySelectorAll('.split').forEach(sp=>{
+    const rev=[...sp.children].filter(c=>c.classList && c.classList.contains('reveal'));
+    if(rev[0]) rev[0].classList.add('r-left');
+    if(rev[1]) rev[1].classList.add('r-right');
+  });
+  // escalonado entre hermanos (tarjetas, pills, fases, pasos...)
+  document.querySelectorAll('.reveal').forEach(el=>{
+    const sibs=[...el.parentElement.children].filter(c=>c.classList && c.classList.contains('reveal'));
+    const i=sibs.indexOf(el);
+    if(i>0) el.style.transitionDelay=Math.min(i*70,420)+'ms';
+    io.observe(el);
+  });
+
+  /* ===== Muro de videos: tus capturas reales + bucle infinito ===== */
+  (function(){
+    // Tus capturas (ya traen texto y visitas incrustadas).
+    // Para anadir mas: copia el PNG en la carpeta VISUALIZACIONES y agrega su ruta aqui.
+    const imgs = [
+      'VISUALIZACIONES/v1.png',
+      'VISUALIZACIONES/v2.png',
+      'VISUALIZACIONES/v3.png',
+      'VISUALIZACIONES/v4.png',
+      'VISUALIZACIONES/v5.png',
+      'VISUALIZACIONES/v6.png',
+      'VISUALIZACIONES/v7.png',
+      'VISUALIZACIONES/v8.png',
+      'VISUALIZACIONES/v9.png',
+      'VISUALIZACIONES/v10.png',
+      'VISUALIZACIONES/v11.png'
+    ];
+    function card(src){ return '<div class="vcard real"><img loading="lazy" src="'+src+'" alt=""></div>'; }
+    function rot(a,n){ return a.slice(n).concat(a.slice(0,n)); }
+    function fill(id, order){
+      const el = document.getElementById(id);
+      if(!el) return;
+      const html = order.map(card).join('');
+      el.innerHTML = html + html;   // duplicado = bucle continuo (-50%)
+    }
+    fill('vrow1', imgs);
+    fill('vrow2', rot(imgs,4));
+    fill('vrow3', rot(imgs,8));
+  })();
+
+  /* ===== Carrusel de video-testimonios ===== */
+  (function(){
+    // Cuando tengas los videos: copia el .mp4 en la carpeta TESTIMONIOS y pon su ruta en "src".
+    // poster (opcional) = imagen de portada del video.
+    const vids = [
+      {name:'Antonio Rojas', info:'Closer de ventas', src:'TESTIMONIOS/t1.mp4', poster:'TESTIMONIOS/t1.jpg'},
+      {name:'Paco Blanco', info:'Peluquero profesional', src:'TESTIMONIOS/t2.mp4', poster:'TESTIMONIOS/t2.jpg'}
+    ];
+    const play = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+    function card(v){
+      const cls = v.src ? 'vt-media' : 'vt-media ph';
+      const media = v.src
+        ? '<video controls playsinline preload="metadata"'+(v.poster?' poster="'+v.poster+'"':'')+'><source src="'+v.src+'"></video>'
+        : '<div class="vt-ph"><div class="vt-play">'+play+'</div><div class="t">Vídeo testimonio</div><div class="s">Sube tu .mp4 a la carpeta TESTIMONIOS</div></div>';
+      return '<div class="vt-card"><div class="'+cls+'">'+media+'</div>'+
+        '<div class="vt-meta"><div class="stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div><b>'+v.name+'</b><span>'+v.info+'</span></div></div>';
+    }
+    const track=document.getElementById('vtTrack');
+    if(track) track.innerHTML=vids.map(card).join('');
+    const wrap=document.querySelector('#vtestim .vt-wrap');
+    if(wrap){
+      const t=wrap.querySelector('.vt-track');
+      const step=()=> ((t.querySelector('.vt-card')||{}).offsetWidth||300)+18;
+      wrap.querySelector('.prev').addEventListener('click',()=>t.scrollBy({left:-step(),behavior:'smooth'}));
+      wrap.querySelector('.next').addEventListener('click',()=>t.scrollBy({left:step(),behavior:'smooth'}));
+    }
+  })();
+
+  /* ===== Contadores animados de la banda de resultados ===== */
+  (function(){
+    const nums=document.querySelectorAll('.results .n[data-to]');
+    if(!nums.length) return;
+    const put=(el,v)=>{ el.textContent=(el.dataset.prefix||'')+v+(el.dataset.suffix||''); };
+    function run(el){
+      const to=parseFloat(el.dataset.to), dur=1300, t0=performance.now();
+      (function step(t){ const p=Math.min((t-t0)/dur,1); const e=1-Math.pow(1-p,3);
+        put(el, Math.round(to*e)); if(p<1) requestAnimationFrame(step); })(t0);
+    }
+    const ob=new IntersectionObserver((es)=>{es.forEach(en=>{if(en.isIntersecting){run(en.target);ob.unobserve(en.target);}})},{threshold:.4});
+    nums.forEach(n=>{ put(n,0); ob.observe(n); });
+  })();
+
+  /* ===== Fondo espacial interactivo (partículas + red + parallax al ratón) ===== */
+  (function(){
+    const cv = document.getElementById('space');
+    const ctx = cv.getContext('2d');
+    let w, h, dpr, particles = [], stars = [];
+    const mouse = { x:-9999, y:-9999, mx:0, my:0 };
+
+    function resize(){
+      dpr = Math.min(window.devicePixelRatio || 1, 2);
+      w = window.innerWidth; h = window.innerHeight;
+      cv.width = w * dpr; cv.height = h * dpr;
+      cv.style.width = w + 'px'; cv.style.height = h + 'px';
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+      build();
+    }
+    function build(){
+      const area = w * h;
+      const count = Math.min(110, Math.max(40, Math.round(area / 16000)));
+      particles = [];
+      for(let i=0;i<count;i++){
+        particles.push({
+          x:Math.random()*w, y:Math.random()*h,
+          vx:(Math.random()-.5)*0.22, vy:(Math.random()-.5)*0.22,
+          r:Math.random()*1.6+0.6
+        });
+      }
+      const sc = Math.round(area/6000);
+      stars = [];
+      for(let i=0;i<sc;i++){
+        stars.push({ x:Math.random()*w, y:Math.random()*h, r:Math.random()*1.1+0.2,
+          tw:Math.random()*Math.PI*2, sp:Math.random()*0.015+0.004, dp:Math.random()*0.6+0.2 });
+      }
+    }
+    function draw(){
+      ctx.clearRect(0,0,w,h);
+      for(const s of stars){
+        s.tw += s.sp;
+        const a = (Math.sin(s.tw)*0.5+0.5) * s.dp;
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(255,255,255,'+(a*0.55).toFixed(3)+')'; ctx.fill();
+      }
+      mouse.mx += (mouse.x - mouse.mx) * 0.06;
+      mouse.my += (mouse.y - mouse.my) * 0.06;
+      for(const p of particles){
+        p.x += p.vx; p.y += p.vy;
+        const dx = p.x - mouse.mx, dy = p.y - mouse.my;
+        const d2 = dx*dx + dy*dy;
+        if(d2 < 16000){
+          const f = (16000 - d2) / 16000 * 0.6;
+          const d = Math.sqrt(d2) || 1;
+          p.x += (dx/d) * f; p.y += (dy/d) * f;
+        }
+        if(p.x < -20) p.x = w+20; if(p.x > w+20) p.x = -20;
+        if(p.y < -20) p.y = h+20; if(p.y > h+20) p.y = -20;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.fillStyle = 'rgba(220,228,245,0.7)'; ctx.fill();
+      }
+      for(let i=0;i<particles.length;i++){
+        for(let j=i+1;j<particles.length;j++){
+          const a=particles[i], b=particles[j];
+          const dx=a.x-b.x, dy=a.y-b.y, dist=dx*dx+dy*dy;
+          if(dist < 13000){
+            const op = (1 - dist/13000) * 0.22;
+            ctx.strokeStyle = 'rgba(245,196,81,'+op.toFixed(3)+')';
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke();
+          }
+        }
+      }
+      requestAnimationFrame(draw);
+    }
+    window.addEventListener('resize', resize, {passive:true});
+    window.addEventListener('mousemove', e=>{ mouse.x=e.clientX; mouse.y=e.clientY; }, {passive:true});
+    window.addEventListener('mouseout', ()=>{ mouse.x=-9999; mouse.y=-9999; });
+    window.addEventListener('touchmove', e=>{ if(e.touches[0]){ mouse.x=e.touches[0].clientX; mouse.y=e.touches[0].clientY; } }, {passive:true});
+    resize();
+    draw();
+  })();
+</script>
+</body>
+</html>
